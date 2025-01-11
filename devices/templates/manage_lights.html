@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Lights{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4">Manage Lights</h1>
+
+<!-- Bulk Control -->
+<div class="mb-4">
+    <form method="POST" class="d-flex justify-content-center">
+        {% csrf_token %}
+        <button name="action" value="turn_all_on" class="btn btn-success mx-2">Turn All Lights On</button>
+        <button name="action" value="turn_all_off" class="btn btn-danger mx-2">Turn All Lights Off</button>
+    </form>
+</div>
+
+<div class="row">
+    {% for light in lights %}
+    <div class="col-md-4">
+        <div class="card p-3 mb-4">
+            <h5>
+                <i class="fa-solid fa-lightbulb me-2"></i>{{ light.name }}
+                {% if light.state %}
+                    <span class="badge bg-success">On</span>
+                {% else %}
+                    <span class="badge bg-danger">Off</span>
+                {% endif %}
+            </h5>
+            <p>Brightness: <strong>{{ light.brightness }}</strong>%</p>
+            <p>Color: <strong>{{ light.color }}</strong></p>
+            <form method="POST" class="d-grid gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="light_id" value="{{ light.id }}">
+                <button name="action" value="turn_on" class="btn btn-success">Turn On</button>
+                <button name="action" value="turn_off" class="btn btn-danger">Turn Off</button>
+                <div class="input-group mt-2">
+                    <input type="number" name="brightness" class="form-control" placeholder="Brightness (0-100)">
+                    <button name="action" value="adjust_brightness" class="btn btn-primary">Set</button>
+                </div>
+                <div class="input-group mt-2">
+                    <input type="text" name="color" class="form-control" placeholder="Color">
+                    <button name="action" value="change_color" class="btn btn-warning">Set</button>
+                </div>
+                <button name="action" value="delete_light" class="btn btn-outline-danger mt-2">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

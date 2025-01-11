@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Motion Sensors{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4">Manage Motion Sensors</h1>
+
+<!-- Feedback Section -->
+<div id="feedback" class="alert alert-success d-none" role="alert"></div>
+
+<div class="row">
+    {% for sensor in motion_sensors %}
+    <div class="col-md-4">
+        <div class="card p-3 mb-4">
+            <h5>
+                <i class="fa-solid fa-running me-2"></i>{{ sensor.name }}
+                <span id="sensor-status-{{ sensor.id }}">
+                    {% if sensor.is_motion_detected %}
+                        <span class="badge bg-success">Motion Detected</span>
+                    {% else %}
+                        <span class="badge bg-danger">No Motion</span>
+                    {% endif %}
+                </span>
+            </h5>
+            <form method="POST" class="d-grid gap-2" onsubmit="return false;">
+                {% csrf_token %}
+                <input type="hidden" name="sensor_id" value="{{ sensor.id }}">
+                <button type="button" class="btn btn-success" onclick="updateMotion({{ sensor.id }}, 'detect_motion')">Detect Motion</button>
+                <button type="button" class="btn btn-danger" onclick="updateMotion({{ sensor.id }}, 'stop_motion')">Stop Motion</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- JavaScript for AJAX -->
+<script>
+    function updateMotion(sensorId, action) {
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+        fetch("{% url 'manage_motion_sensors' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `sensor_id=${sensorId}&action=${action}`,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                const statusElement = document.getElementById(`sensor-status-${sensorId}`);
+                if (data.is_motion_detected) {
+                    statusElement.innerHTML = '<span class="badge bg-success">Motion Detected</span>';
+                } else {
+                    statusElement.innerHTML = '<span class="badge bg-danger">No Motion</span>';
+                }
+
+                // Update feedback
+                const feedback = document.getElementById("feedback");
+                feedback.textContent = `Motion Sensor '${data.sensor_name}' updated successfully!`;
+                feedback.classList.remove("d-none");
+                feedback.classList.add("alert-success");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            const feedback = document.getElementById("feedback");
+            feedback.textContent = "An error occurred while updating the motion sensor.";
+            feedback.classList.remove("d-none");
+            feedback.classList.add("alert-danger");
+        });
+    }
+</script>
+{% endblock %}

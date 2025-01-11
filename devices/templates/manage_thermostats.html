@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Thermostats{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4">Manage Thermostats</h1>
+
+<!-- Bulk Control -->
+<div class="mb-4">
+    <form method="POST" class="d-flex justify-content-center">
+        {% csrf_token %}
+        <input type="number" name="bulk_temp" class="form-control w-25" placeholder="Set Target Temp for All">
+        <button name="action" value="set_all_temps" class="btn btn-primary mx-2">Set All Temperatures</button>
+    </form>
+</div>
+
+<div class="row">
+    {% for thermostat in thermostats %}
+    <div class="col-md-4">
+        <div class="card p-3 mb-4">
+            <h5>
+                <i class="fa-solid fa-temperature-high me-2"></i>{{ thermostat.name }}
+                <span class="badge bg-info">Target: {{ thermostat.target_temperature }}°C</span>
+            </h5>
+            <p>Current Temp: <strong>{{ thermostat.current_temperature }}</strong>°C</p>
+            <form method="POST" class="d-grid gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="thermostat_id" value="{{ thermostat.id }}">
+                <div class="input-group">
+                    <input type="number" name="new_temp" class="form-control" placeholder="Set Target Temp">
+                    <button class="btn btn-primary" type="submit">Set</button>
+                </div>
+                <button name="action" value="delete_thermostat" class="btn btn-outline-danger mt-2">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

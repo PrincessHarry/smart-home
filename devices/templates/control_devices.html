@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Smart Home Control Panel
+{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Smart Home Control Panel</h1>
+
+<h2>Lights</h2>
+{% for light in lights %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ light.name }}</h5>
+            <p class="card-text">State: {{ light.state }} | Brightness: {{ light.brightness }}% | Color: {{ light.color }}</p>
+            <form method="POST" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-primary" name="turn_on_light" value="{{ light.id }}">Turn On</button>
+                <button class="btn btn-secondary" name="turn_off_light" value="{{ light.id }}">Turn Off</button>
+            </form>
+            <form method="POST" class="d-inline">
+                {% csrf_token %}
+                <input type="number" name="brightness_level" min="0" max="100" class="form-control d-inline" placeholder="Brightness" style="width: 100px;">
+                <button class="btn btn-success" name="adjust_brightness" value="{{ light.id }}">Set Brightness</button>
+            </form>
+            <form method="POST" class="d-inline">
+                {% csrf_token %}
+                <input type="text" name="color" class="form-control d-inline" placeholder="Color" style="width: 120px;">
+                <button class="btn btn-warning" name="change_color" value="{{ light.id }}">Set Color</button>
+            </form>
+        </div>
+    </div>
+{% endfor %}
+
+<h2>Thermostats</h2>
+{% for thermostat in thermostats %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ thermostat.name }}</h5>
+            <p class="card-text">Current Temperature: {{ thermostat.current_temperature }}°C | Target Temperature: {{ thermostat.target_temperature }}°C</p>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="number" name="target_temperature" class="form-control d-inline" placeholder="Set Target Temperature" style="width: 150px;">
+                <button class="btn btn-primary" name="adjust_temperature" value="{{ thermostat.id }}">Set Temperature</button>
+            </form>
+        </div>
+    </div>
+{% endfor %}
+
+<h2>Motion Sensors</h2>
+{% for sensor in motion_sensors %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ sensor.name }}</h5>
+            <p class="card-text">Motion Detected: {{ sensor.is_motion_detected }}</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button class="btn btn-danger" name="detect_motion" value="{{ sensor.id }}">Detect Motion</button>
+                <button class="btn btn-success" name="no_motion" value="{{ sensor.id }}">No Motion</button>
+            </form>
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}

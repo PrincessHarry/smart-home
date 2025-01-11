@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Devices{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4">Add a New Device</h1>
+
+<!-- Feedback Section -->
+<div id="feedback" class="alert alert-success d-none" role="alert"></div>
+
+<!-- Add Smart Light -->
+<h3>Add a Smart Light</h3>
+<form id="add-light-form" class="mb-4">
+    {% csrf_token %}
+    <input type="hidden" name="device_type" value="light">
+    <div class="mb-2">
+        <label for="light-name">Name:</label>
+        <input type="text" name="name" id="light-name" class="form-control" placeholder="Light Name" required>
+    </div>
+    <div class="mb-2">
+        <label for="light-brightness">Brightness:</label>
+        <input type="number" name="brightness" id="light-brightness" class="form-control" placeholder="Brightness (0-100)" required>
+    </div>
+    <div class="mb-2">
+        <label for="light-color">Color:</label>
+        <input type="text" name="color" id="light-color" class="form-control" placeholder="Color (e.g., White, Blue)">
+    </div>
+    <button type="button" id="add-light-btn" class="btn btn-primary">Add Smart Light</button>
+</form>
+
+<!-- Add Thermostat -->
+<h3>Add a Thermostat</h3>
+<form id="add-thermostat-form" class="mb-4">
+    {% csrf_token %}
+    <input type="hidden" name="device_type" value="thermostat">
+    <div class="mb-2">
+        <label for="thermostat-name">Name:</label>
+        <input type="text" name="name" id="thermostat-name" class="form-control" placeholder="Thermostat Name" required>
+    </div>
+    <div class="mb-2">
+        <label for="thermostat-current-temp">Current Temperature:</label>
+        <input type="number" name="current_temperature" id="thermostat-current-temp" class="form-control" placeholder="Current Temperature">
+    </div>
+    <div class="mb-2">
+        <label for="thermostat-target-temp">Target Temperature:</label>
+        <input type="number" name="target_temperature" id="thermostat-target-temp" class="form-control" placeholder="Target Temperature">
+    </div>
+    <button type="button" id="add-thermostat-btn" class="btn btn-primary">Add Thermostat</button>
+</form>
+
+<!-- Add Motion Sensor -->
+<h3>Add a Motion Sensor</h3>
+<form id="add-sensor-form" class="mb-4">
+    {% csrf_token %}
+    <input type="hidden" name="device_type" value="motion_sensor">
+    <div class="mb-2">
+        <label for="motion-sensor-name">Name:</label>
+        <input type="text" name="name" id="motion-sensor-name" class="form-control" placeholder="Motion Sensor Name" required>
+    </div>
+    <button type="button" id="add-sensor-btn" class="btn btn-primary">Add Motion Sensor</button>
+</form>
+
+<!-- Live Table -->
+<h3 class="mt-5">Added Devices</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody id="device-table">
+        <!-- Table rows will be dynamically populated -->
+    </tbody>
+</table>
+
+<!-- JavaScript for AJAX -->
+<script>
+    // Function to fetch all devices and populate the table
+    function fetchDevices() {
+        fetch("{% url 'add_device' %}")
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("device-table");
+                tableBody.innerHTML = "";  // Clear the table
+
+                // Add Smart Lights
+                data.lights.forEach(light => {
+                    const row = `
+                        <tr>
+                            <td>Smart Light</td>
+                            <td>${light.name}</td>
+                            <td>Brightness: ${light.brightness}, Color: ${light.color}</td>
+                        </tr>`;
+                    tableBody.innerHTML += row;
+                });
+
+                // Add Thermostats
+                data.thermostats.forEach(thermostat => {
+                    const row = `
+                        <tr>
+                            <td>Thermostat</td>
+                            <td>${thermostat.name}</td>
+                            <td>Current Temp: ${thermostat.current_temperature}°C, Target Temp: ${thermostat.target_temperature}°C</td>
+                        </tr>`;
+                    tableBody.innerHTML += row;
+                });
+
+                // Add Motion Sensors
+                data.motion_sensors.forEach(sensor => {
+                    const row = `
+                        <tr>
+                            <td>Motion Sensor</td>
+                            <td>${sensor.name}</td>
+                            <td>Motion Detected: ${sensor.is_motion_detected ? "Yes" : "No"}</td>
+                        </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            });
+    }
+
+    // Submit form using AJAX
+    function submitForm(formId, buttonId) {
+        const form = document.getElementById(formId);
+        const button = document.getElementById(buttonId);
+        const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const formData = new FormData(form);
+
+        button.addEventListener('click', () => {
+            fetch("{% url 'add_device' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                const feedback = document.getElementById('feedback');
+                feedback.textContent = data.message;
+                feedback.classList.remove('d-none');
+                feedback.classList.add('alert-success');
+
+                // Clear the form and fetch devices again
+                form.reset();
+                fetchDevices();
+            })
+            .catch(error => {
+                const feedback = document.getElementById('feedback');
+                feedback.textContent = "An error occurred while adding the device.";
+                feedback.classList.remove('d-none');
+                feedback.classList.add('alert-danger');
+            });
+        });
+    }
+
+    // Attach AJAX to forms
+    submitForm("add-light-form", "add-light-btn");
+    submitForm("add-thermostat-form", "add-thermostat-btn");
+    submitForm("add-sensor-form", "add-sensor-btn");
+document.addEventListener("DOMContentLoaded", fetchDevices);
+</script>
+{% endblock %}

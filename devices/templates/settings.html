@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Device Settings</h1>
+<form method="post">
+    {% csrf_token %}
+    {% for setting in settings %}
+        <h3>{{ setting.device_name }}</h3>
+        <label>Brightness:</label>
+        <input type="number" name="brightness_{{ setting.id }}" value="{{ setting.default_brightness }}" min="0" max="100"><br>
+        <label>Color:</label>
+        <input type="text" name="color_{{ setting.id }}" value="{{ setting.default_color }}"><br>
+        <label>Temperature Threshold:</label>
+        <input type="number" name="temperature_{{ setting.id }}" step="0.1" value="{{ setting.temperature_threshold }}"><br>
+        <label>Motion Sensitivity:</label>
+        <select name="motion_{{ setting.id }}">
+            <option value="low" {% if setting.motion_sensitivity == 'low' %}selected{% endif %}>Low</option>
+            <option value="medium" {% if setting.motion_sensitivity == 'medium' %}selected{% endif %}>Medium</option>
+            <option value="high" {% if setting.motion_sensitivity == 'high' %}selected{% endif %}>High</option>
+        </select>
+        <hr>
+    {% endfor %}
+    <button type="submit">Save Settings</button>
+</form>
+{% endblock %}
