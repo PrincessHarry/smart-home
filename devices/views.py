@@ -88,32 +88,31 @@ def add_device(request):
     
 def dashboard(request):
     # Collect data for dashboard summary
-    lights = SmartLight.objects.all()
-    thermostats = Thermostat.objects.all()
-    motion_sensors = MotionSensor.objects.all()
-
+    lights = SmartLight.objects.count()
+    thermostats = Thermostat.objects.count()
+    motion_sensors = MotionSensor.objects.count()
+    
     # Compute additional stats if needed
-    total_lights = lights.count()
-    lights_on = lights.filter(state=True).count()
+    # total_lights = lights.count()
+    # lights_on = lights.filter(state=True).count()
 
-    total_thermostats = thermostats.count()
-    if total_thermostats > 0:
-        min_temp = thermostats.aggregate(min_temp=models.Min('current_temperature'))['min_temp']
-        max_temp = thermostats.aggregate(max_temp=models.Max('current_temperature'))['max_temp']
-    else:
-        min_temp, max_temp = None, None
+    # total_thermostats = thermostats.count()
+    # if total_thermostats > 0:
+    #     min_temp = thermostats.aggregate(min_temp=models.Min('current_temperature'))['min_temp']
+    #     max_temp = thermostats.aggregate(max_temp=models.Max('current_temperature'))['max_temp']
+    # else:
+    #     min_temp, max_temp = None, None
 
-    total_sensors = motion_sensors.count()
-    active_sensors = motion_sensors.filter(is_motion_detected=True).count()
+    # total_sensors = motion_sensors.count()
+    # active_sensors = motion_sensors.filter(is_motion_detected=True).count()
 
     context = {
-        'total_lights': total_lights,
-        'lights_on': lights_on,
-        'total_thermostats': total_thermostats,
-        'min_temp': min_temp,
-        'max_temp': max_temp,
-        'total_sensors': total_sensors,
-        'active_sensors': active_sensors,
+        'lights': lights,
+      
+        'thermostats': thermostats,
+       
+        'motion_sensors': motion_sensors,
+      
     }
 
     return render(request, 'dashboard.html', context)
@@ -123,24 +122,27 @@ def manage_lights(request):
         action = request.POST.get("action")
 
         if action == "turn_all_on":
-            SmartLight.objects.update(state=True)
+            SmartLight.objects.update(state=True, color="yellow")  # Default to yellow when turned on
         elif action == "turn_all_off":
-            SmartLight.objects.update(state=False)
+            SmartLight.objects.update(state=False, color="black")  # Default to black when turned off
         elif action == "delete_light":
             light_id = request.POST.get("light_id")
             SmartLight.objects.get(id=light_id).delete()
         elif action == "turn_on":
             light = SmartLight.objects.get(id=request.POST.get("light_id"))
             light.turn_on()
+            light.change_color("yellow")  # Color set to yellow when turned on
         elif action == "turn_off":
             light = SmartLight.objects.get(id=request.POST.get("light_id"))
             light.turn_off()
+            light.change_color("black")  # Color set to black when turned off
         elif action == "adjust_brightness":
             light = SmartLight.objects.get(id=request.POST.get("light_id"))
             light.adjust_brightness(int(request.POST.get("brightness")))
         elif action == "change_color":
             light = SmartLight.objects.get(id=request.POST.get("light_id"))
-            light.change_color(request.POST.get("color"))
+            new_color = request.POST.get("color")
+            light.change_color(new_color)  # Update color based on user's selection
 
         return redirect("manage_lights")
 

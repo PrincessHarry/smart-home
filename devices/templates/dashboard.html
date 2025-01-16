@@ -3,8 +3,8 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="text-center mb-4">Smart Home Dashboard</h1>
 
+<div class="container dash">
 <div class="row">
     <!-- Lights Section -->
     <div class="col-md-4">
@@ -13,7 +13,7 @@
                 <i class="fa-solid fa-lightbulb me-3"></i>
                 <h5>Lights</h5>
             </div>
-            <p class="text-muted">Number of lights: {{ lights.count }}</p>
+            <!-- <p class="text-muted">Number of lights: {{ lights.count }}</p> -->
             <a href="/lights/" class="btn btn-primary w-100">Manage Lights</a>
         </div>
     </div>
@@ -25,7 +25,7 @@
                 <i class="fa-solid fa-temperature-high me-3"></i>
                 <h5>Thermostats</h5>
             </div>
-            <p class="text-muted">Number of thermostats: {{ thermostats.count }}</p>
+            <!-- <p class="text-muted">Number of thermostats: {{ thermostats.count }}</p> -->
             <a href="/thermostats/" class="btn btn-primary w-100">Manage Thermostats</a>
         </div>
     </div>
@@ -37,9 +37,10 @@
                 <i class="fa-solid fa-running me-3"></i>
                 <h5>Motion Sensors</h5>
             </div>
-            <p class="text-muted">Number of sensors: {{ motion_sensors.count }}</p>
+            <!-- <p class="text-muted">Number of sensors: {{ motion_sensors.count }}</p> -->
             <a href="/motion_sensors/" class="btn btn-primary w-100">Manage Sensors</a>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

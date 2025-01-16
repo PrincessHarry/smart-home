@@ -19,7 +19,8 @@
     <div class="col-md-4">
         <div class="card p-3 mb-4">
             <h5>
-                <i class="fa-solid fa-lightbulb me-2"></i>{{ light.name }}
+                <span id="">
+                <i class="fa-solid fa-lightbulb me-2 light-icon"></i></span>{{ light.name }}
                 {% if light.state %}
                     <span class="badge bg-success">On</span>
                 {% else %}
@@ -47,4 +48,21 @@
     </div>
     {% endfor %}
 </div>
+
+<script>
+    // Function to update the icon color based on light status
+function updateLightStatus(isLightOn) {
+    const icon = document.getElementById('light-icon');
+    if (isLightOn) {
+        icon.style.color = 'yellow';  // You can change this to blue or white if needed
+    } else {
+        icon.style.color = 'black';
+    }
+}
+
+// Example: Simulate a change in light status (true means light is on, false means light is off)
+updateLightStatus(true);  // Light is on (icon turns yellow)
+updateLightStatus(false); // Light is off (icon turns black)
+
+</script>
 {% endblock %}
